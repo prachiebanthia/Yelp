@@ -10,9 +10,8 @@ import UIKit
 
 
 protocol FiltersViewControllerDelegate: class{
-    // This is to pass the switchStates back to BusinessViewController,
-    // so that the state persists and the user doesn't have to keep
-    // re-selecting their previous choice
+
+    //all of the settings information that this class needs
     func filtersViewController(
         filtersViewController: FiltersViewController,
         didSwitchStates switchStates: [Int:Bool],
@@ -135,31 +134,14 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
         }else if(indexPath.section == 3){
             cell.delegate = self
             cell.filterLabel.text = categories[indexPath.row]["name"]
-            if(switchStates[indexPath.row] != nil){
-                cell.filterSwitch.isOn = switchStates[indexPath.row]!
-            }else{
-                cell.filterSwitch.isOn = false
-            }
+            cell.filterSwitch.isOn = switchStates[indexPath.row] ?? false
         }
-        
-        
-        
-        
-        
-        //cell.filterLabel.text = categories[indexPath.row]["name"]
-        //cell.delegate = self
-        //cell.filterSwitch.isOn = switchStates[indexPath.row] ?? false
-        
         return cell
     }
     
-    
-    func disableOtherDistanceCells(selectedCell: Int, section: Int){
-        // Radio button feature on distance switches
-        // disable all other cells (other than the one selected)
-        //
-        // Section 1 has 6 cells total. Section 2 has 3 cells total.
-        
+    // This method does a brute force rule acknowledgemnt on how each selection affects which other cells can no longer be selected. Useful for distance and sort type
+    func disableOtherCells(selectedCell: Int, section: Int){
+
         if(selectedCell != 0){
             let ip0 = IndexPath(row: 0, section: section)
             if let cell0 = tableView.cellForRow(at: ip0) as? SwitchCell{
@@ -214,64 +196,17 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
             searchDeals = value
         }else if(indexPath?.section == 1){
             let row = indexPath!.row
-            
-            if(row == 0){
-                if(value == true){
-                    disableOtherDistanceCells(selectedCell: 0, section: indexPath!.section)
-                }
-                distanceAuto = value
+            if (value){
+                disableOtherCells(selectedCell: row, section: indexPath!.section)
             }
-            else if(row == 1){
-                if(value == true){
-                    disableOtherDistanceCells(selectedCell: 1, section: indexPath!.section)
-                }
-                distancePoint3 = value
-            }
-            else if (row == 2){
-                if(value == true){
-                    disableOtherDistanceCells(selectedCell: 2, section: indexPath!.section)
-                }
-                distance1Mile = value
-            }
-            else if (row == 3){
-                if(value == true){
-                    disableOtherDistanceCells(selectedCell: 3, section: indexPath!.section)
-                }
-                distance3Mile = value
-            }
-            else if (row == 4){
-                if(value == true){
-                    disableOtherDistanceCells(selectedCell: 4, section: indexPath!.section)
-                }
-                distance5Mile = value
-            }
-            else if (row == 5){
-                if(value == true){
-                    disableOtherDistanceCells(selectedCell: 5, section: indexPath!.section)
-                }
-                distance20Mile = value
-            }
+            distanceAuto = value
+           
         }else if(indexPath?.section == 2){
             let row = indexPath!.row
-            
-            if(row == 0){
-                if(value == true){
-                    disableOtherDistanceCells(selectedCell: 0, section: indexPath!.section)
-                }
-                sortMode = .bestMatched
+            if (value){
+                disableOtherCells(selectedCell: row, section: indexPath!.section)
             }
-            else if(row == 1){
-                if(value == true){
-                    disableOtherDistanceCells(selectedCell: 1, section: indexPath!.section)
-                }
-                sortMode = .distance
-            }
-            else if(row == 2){
-                if(value == true){
-                    disableOtherDistanceCells(selectedCell: 2, section: indexPath!.section)
-                }
-                sortMode = .highestRated
-            }
+            sortMode = .bestMatched
             
         }else if(indexPath?.section == 3){
             switchStates[indexPath!.row] = value
@@ -290,18 +225,6 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBAction func onSearchAction(_ sender: AnyObject) {
         dismiss(animated: true, completion: nil)
         
-        /*var filters = [String: AnyObject]()
-        var selectedCategories = [String]()
-        
-        for (row,isSelected) in switchStates {
-            if isSelected {
-                selectedCategories.append(categories[row]["code"]!)
-            }
-        }
-        
-        if selectedCategories.count > 0 {
-            filters["categories"] = selectedCategories as AnyObject?
-        } */
         delegate?.filtersViewController(
             filtersViewController: self,
             didSwitchStates: switchStates,
